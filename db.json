@@ -2,23 +2,27 @@
   "users": [
     {
       "id": "sebastian",
-      "name": "Sebastian"
+      "name": "Sebastian",
+      "username": "sebastian",
+      "password": "1234"
     },
     {
       "id": "benjamin",
-      "name": "Benjamin"
+      "name": "Benjamin",
+      "username": "benjamin",
+      "password": "abcd"
     }
   ],
   "tasks": [
     {
-      "title": "Hacer la cama",
-      "description": "Comer",
-      "createdById": "benjamin",
-      "createdBy": "Benjamin",
-      "createdAt": "2025-09-19T06:03:41.421Z",
-      "updatedById": "sebastian",
-      "updatedBy": "Sebastian",
-      "updatedAt": "2025-09-19T06:03:53.336Z",
+      "title": "Jugar",
+      "description": "En el parque",
+      "createdById": "sebastian",
+      "createdBy": "Sebastian",
+      "createdAt": "2025-09-19T06:15:13.261Z",
+      "updatedById": "benjamin",
+      "updatedBy": "Benjamin",
+      "updatedAt": "2025-09-19T06:15:36.027Z",
       "id": 1
     }
   ]
