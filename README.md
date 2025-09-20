@@ -1,12 +1,29 @@
-# React + Vite
+# ✨ Prado's Tareas
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Prado's Tareas es una aplicación **colaborativa de gestión de tareas** construida con **React + Vite + TailwindCSS** en el frontend y **json-server** como backend simulado.  
+Incluye **login de usuarios con contraseña**, **CRUD de tareas**, **búsqueda, paginación**, y un diseño moderno con estilo **glassmorphism + neon**.  
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Características principales
+- 🔐 **Login de usuarios**: validación de credenciales contra `db.json`.
+- 👥 **Gestión colaborativa de tareas**:
+  - Crear, leer, editar y eliminar tareas.
+  - Registro de quién creó y quién editó cada tarea.
+- 🔎 **Buscador de tareas** con debounce.
+- 📑 **Paginación** con contador de páginas y total de tareas.
+- 🎨 **Diseño moderno** con gradientes, neon glow, glassmorphism y animaciones suaves.
+- 🔔 **Toasts personalizados** para mostrar alertas de éxito o error.
+- 🌐 **API REST simulada** con `json-server`.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Tecnologías utilizadas
+- [React](https://react.dev/) + [Vite](https://vitejs.dev/)  
+- [TailwindCSS](https://tailwindcss.com/)  
+- [json-server](https://github.com/typicode/json-server)  
+- [Concurrently](https://www.npmjs.com/package/concurrently)  
+
+---
+
+## 📂 Estructura del proyecto
