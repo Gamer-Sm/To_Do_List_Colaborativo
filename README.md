@@ -200,7 +200,7 @@ git push -u origin feature/login
 
 ## 👥 Autores
 - **Sebastian Prado** — Frontend + Presentación  
-- **Benjamin Prado** — Backend + Documentación
+- **Rodrigo Otalora** — Backend + Documentación 
 
 ---
 
