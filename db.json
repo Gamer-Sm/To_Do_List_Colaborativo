@@ -15,15 +15,28 @@
   ],
   "tasks": [
     {
+      "id": 1,
       "title": "Jugar",
       "description": "En el parque",
       "createdById": "sebastian",
       "createdBy": "Sebastian",
       "createdAt": "2025-09-19T06:15:13.261Z",
-      "updatedById": "benjamin",
-      "updatedBy": "Benjamin",
-      "updatedAt": "2025-09-19T06:15:36.027Z",
-      "id": 1
+      "updatedById": "sebastian",
+      "updatedBy": "Sebastian",
+      "updatedAt": "2025-09-20T12:29:51.117Z",
+      "completed": false
+    },
+    {
+      "id": 2,
+      "title": "Casarme con el amor de mi vida",
+      "description": "Dani :DD",
+      "createdById": "sebastian",
+      "createdBy": "Sebastian",
+      "createdAt": "2025-09-20T12:04:30.701Z",
+      "updatedById": "sebastian",
+      "updatedBy": "Sebastian",
+      "updatedAt": "2025-09-20T12:20:56.948Z",
+      "completed": false
     }
   ]
 }
