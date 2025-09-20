@@ -1,1 +1,19 @@
-@import "tailwindcss"; 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Preferencia por modo oscuro */
+:root { color-scheme: dark; }
+
+/* Tipografía y suavizado */
+html, body, #root {
+  height: 100%;
+}
+body {
+  @apply bg-neutral-950 text-white antialiased;
+}
+
+/* Ajustes pequeños para inputs y botones por si el navegador impone estilos */
+input, textarea, select, button {
+  font: inherit;
+}
