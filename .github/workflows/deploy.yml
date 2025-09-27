@@ -1,34 +1,47 @@
-GitHub Pages
- 
+name: Deploy to GitHub Pages
+
 on:
   push:
     branches:
-      - main  # o "master" según tu rama
- 
+      - develop   # 👈 Se ejecutará cuando hagas push a la rama develop
+
+permissions:
+  contents: read   # 👈 corregido (no "red")
+  pages: write
+  id-token: write
+
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
- 
+  build:
+    runs-on: ubuntu-latest   # 👈 faltaba el valor
     steps:
-      - name: ⬇️ Checkout
-        uses: actions/checkout@v4
- 
-      - name: 📦 Instalar Node.js
+      - name: Checkout code
+        uses: actions/checkout@v4   # 👈 movido al lugar correcto
+
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
- 
-      - name: 📥 Instalar dependencias
-        run: npm install
- 
-      - name: 🧹 Lint con ESLint
-        run: npm run lint
- 
-      - name: 🛠️ Build del proyecto
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
         run: npm run build
- 
-      - name: 📤 Deploy a GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+
+      - name: Upload dist folder
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:              # 👈 corregido (era "enviroment")
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}   # 👈 corregido espacio
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
