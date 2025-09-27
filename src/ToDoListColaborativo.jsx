@@ -7,12 +7,7 @@ import React, { useEffect, useState } from "react";
  */
 
 // ---------------- API URL resolver (robusto) ----------------
-// Detectar si estamos en GitHub Pages
-const isGithubPages = window?.location?.hostname === "gamer-sm.github.io";
-const DEFAULT_API_URL = isGithubPages
-  ? `${import.meta.env.BASE_URL}db.json`
-  : "http://localhost:3000";
-
+const DEFAULT_API_URL = "http://localhost:3000";
 function resolveApiUrl() {
   let url = DEFAULT_API_URL;
   try { if (typeof window !== "undefined" && window.__API_URL__) url = window.__API_URL__; } catch {}
@@ -21,6 +16,7 @@ function resolveApiUrl() {
   try { if (typeof localStorage !== "undefined") url = localStorage.getItem("VITE_API_URL") ?? url; } catch {}
   return url;
 }
+
 export const API_URL = resolveApiUrl();
 const PAGE_SIZE = 6;
 
@@ -149,31 +145,17 @@ function Button({ children, variant = "solid", className = "", ...props }) {
 
 // ---------------- API helpers ----------------
 async function apiListTasks({ page, q }) {
-  if (isGithubPages) {
-    // Solo lectura: cargar tareas desde db.json
-    const res = await fetch(API_URL);
-    if (!res.ok) throw new Error("Error cargando tareas");
-    const json = await res.json();
-    let data = json.tasks || [];
-    if (q) data = data.filter(t => t.title.toLowerCase().includes(q.toLowerCase()));
-    const total = data.length;
-    const start = (page - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
-    return { data: data.slice(start, end), total };
-  } else {
-    const url = new URL(`${API_URL}/tasks`);
-    url.searchParams.set("_page", String(page));
-    url.searchParams.set("_limit", String(PAGE_SIZE));
-    if (q) url.searchParams.set("q", q);
-    const res = await fetch(url, { headers: { "Content-Type": "application/json" } });
-    if (!res.ok) throw new Error("Error cargando tareas");
-    const data = await res.json();
-    const total = Number(res.headers.get("X-Total-Count")) || data.length;
-    return { data, total };
-  }
+  const url = new URL(`${API_URL}/tasks`);
+  url.searchParams.set("_page", String(page));
+  url.searchParams.set("_limit", String(PAGE_SIZE));
+  if (q) url.searchParams.set("q", q);
+  const res = await fetch(url, { headers: { "Content-Type": "application/json" } });
+  if (!res.ok) throw new Error("Error cargando tareas");
+  const data = await res.json();
+  const total = Number(res.headers.get("X-Total-Count")) || data.length;
+  return { data, total };
 }
 async function apiCreateTask(task) {
-  if (isGithubPages) throw new Error("Solo lectura en GitHub Pages");
   const res = await fetch(`${API_URL}/tasks`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -183,7 +165,6 @@ async function apiCreateTask(task) {
   return res.json();
 }
 async function apiPatchTask(id, changes) {
-  if (isGithubPages) throw new Error("Solo lectura en GitHub Pages");
   const res = await fetch(`${API_URL}/tasks/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -193,50 +174,31 @@ async function apiPatchTask(id, changes) {
   return res.json();
 }
 async function apiDeleteTask(id) {
-  if (isGithubPages) throw new Error("Solo lectura en GitHub Pages");
   const res = await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error("No se pudo eliminar");
 }
 // Contadores globales usando X-Total-Count
 async function apiCountAll() {
-  if (isGithubPages) {
-    const res = await fetch(API_URL);
-    if (!res.ok) return { completed: 0, remaining: 0, total: 0 };
-    const json = await res.json();
-    const data = json.tasks || [];
-    const completed = data.filter(t => t.completed).length;
-    const remaining = data.filter(t => !t.completed).length;
-    return { completed, remaining, total: data.length };
-  } else {
-    async function countByCompleted(flag) {
-      const url = new URL(`${API_URL}/tasks`);
-      url.searchParams.set("completed", String(flag));
-      url.searchParams.set("_page", "1");
-      url.searchParams.set("_limit", "1"); // solo para obtener header
-      const res = await fetch(url);
-      if (!res.ok) return 0;
-      return Number(res.headers.get("X-Total-Count")) || 0;
-    }
-    const [completed, remaining] = await Promise.all([countByCompleted(true), countByCompleted(false)]);
-    return { completed, remaining, total: completed + remaining };
+  async function countByCompleted(flag) {
+    const url = new URL(`${API_URL}/tasks`);
+    url.searchParams.set("completed", String(flag));
+    url.searchParams.set("_page", "1");
+    url.searchParams.set("_limit", "1"); // solo para obtener header
+    const res = await fetch(url);
+    if (!res.ok) return 0;
+    return Number(res.headers.get("X-Total-Count")) || 0;
   }
+  const [completed, remaining] = await Promise.all([countByCompleted(true), countByCompleted(false)]);
+  return { completed, remaining, total: completed + remaining };
 }
 async function apiLogin({ username, password }) {
-  if (isGithubPages) {
-    const res = await fetch(API_URL);
-    if (!res.ok) throw new Error("Error de red");
-    const json = await res.json();
-    const users = json.users || [];
-    return users.find(u => u.username === username && u.password === password) || null;
-  } else {
-    const url = new URL(`${API_URL}/users`);
-    url.searchParams.set("username", username);
-    url.searchParams.set("password", password);
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Error de red");
-    const users = await res.json();
-    return users[0] || null;
-  }
+  const url = new URL(`${API_URL}/users`);
+  url.searchParams.set("username", username);
+  url.searchParams.set("password", password);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Error de red");
+  const users = await res.json();
+  return users[0] || null;
 }
 
 // ---------------- Auth ----------------
@@ -633,4 +595,3 @@ export default function ToDoListColaborativo() {
 @keyframes slideIn { from { transform: translateY(-6px) } to { transform: translateY(0) } }
 @keyframes popIn { from { transform: scale(.98) } to { transform: scale(1) } }
 */
-
