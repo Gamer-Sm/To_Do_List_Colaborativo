@@ -7,7 +7,8 @@ import React, { useEffect, useState } from "react";
  */
 
 // ---------------- API URL resolver (robusto) ----------------
-const DEFAULT_API_URL = "http://localhost:3000";
+const DEFAULT_API_URL = ""; // O "." si prefieres ruta relativa
+
 function resolveApiUrl() {
   let url = DEFAULT_API_URL;
   try { if (typeof window !== "undefined" && window.__API_URL__) url = window.__API_URL__; } catch {}
@@ -16,6 +17,7 @@ function resolveApiUrl() {
   try { if (typeof localStorage !== "undefined") url = localStorage.getItem("VITE_API_URL") ?? url; } catch {}
   return url;
 }
+
 export const API_URL = resolveApiUrl();
 const PAGE_SIZE = 6;
 
