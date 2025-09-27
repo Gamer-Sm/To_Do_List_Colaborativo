@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 
 /**
  * Prado's Tareas — Vite + React + json-server
- * + Botón completar/deshacer fijo (28x28) y alineado con títulos largos
- * + Contadores globales (restantes / completadas)
+ * Login (username+password) + CRUD + búsqueda + paginación + completar tareas
+ * Estilo: Neon + Glassmorphism
  */
 
 // ---------------- API URL resolver (robusto) ----------------
@@ -43,7 +43,8 @@ function Toast({ item, onDone }) {
 
   return (
     <div
-      className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-2xl bg-white/95 text-black shadow-2xl ring-1 ring-black/10 animate-[fadeIn_.2s_ease,slideIn_.2s_ease]"
+      className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-2xl bg-white/95 text-black
+                 shadow-2xl ring-1 ring-black/10 animate-[fadeIn_.2s_ease,slideIn_.2s_ease]"
       style={{ transformOrigin: "top right" }}
     >
       <div className="p-4">
@@ -55,7 +56,13 @@ function Toast({ item, onDone }) {
             <p className="text-sm font-semibold">{item.title}</p>
             {item.message && <p className="mt-1 text-sm opacity-80">{item.message}</p>}
           </div>
-          <button onClick={onDone} className="ml-3 inline-flex rounded-xl p-2 text-black/70 hover:bg-black/5" aria-label="Cerrar">✕</button>
+          <button
+            onClick={onDone}
+            className="ml-3 inline-flex rounded-xl p-2 text-black/70 hover:bg-black/5"
+            aria-label="Cerrar"
+          >
+            ✕
+          </button>
         </div>
       </div>
     </div>
@@ -169,13 +176,13 @@ async function apiDeleteTask(id) {
   const res = await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error("No se pudo eliminar");
 }
-// Cuenta global de tareas completadas/restantes usando X-Total-Count.
+// Contadores globales usando X-Total-Count
 async function apiCountAll() {
   async function countByCompleted(flag) {
     const url = new URL(`${API_URL}/tasks`);
     url.searchParams.set("completed", String(flag));
     url.searchParams.set("_page", "1");
-    url.searchParams.set("_limit", "1"); // solo para obtener el header
+    url.searchParams.set("_limit", "1"); // solo para obtener header
     const res = await fetch(url);
     if (!res.ok) return 0;
     return Number(res.headers.get("X-Total-Count")) || 0;
@@ -210,7 +217,59 @@ function useAuth() {
   return { user, login, logout };
 }
 
-// ---------------- UI de Tareas ----------------
+// ---------------- Login ----------------
+function LoginCard({ onSuccess, toasts }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!username || !password) {
+      toasts.add({ type: "error", title: "Completa usuario y contraseña" });
+      return;
+    }
+    setLoading(true);
+    try {
+      const u = await apiLogin({ username, password });
+      if (!u) {
+        toasts.add({ type: "error", title: "Credenciales inválidas" });
+      } else {
+        toasts.add({ type: "success", title: `Bienvenido, ${u.name}` });
+        onSuccess(u);
+      }
+    } catch {
+      toasts.add({ type: "error", title: "No se pudo iniciar sesión" });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-md rounded-3xl border border-cyan-400/30 bg-black/50 p-6 text-white shadow-2xl backdrop-blur transition hover:border-cyan-300/50 hover:shadow-cyan-500/30">
+      <h1 className="mb-1 text-3xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
+        Prado's Tareas
+      </h1>
+      <p className="mb-6 text-sm text-white/70">Inicia sesión para continuar</p>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Field label="Usuario">
+          <TextInput value={username} onChange={(e) => setUsername(e.target.value)} placeholder="tu_usuario" />
+        </Field>
+        <Field label="Contraseña">
+          <TextInput type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+        </Field>
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? "Ingresando…" : "Ingresar"}
+        </Button>
+      </form>
+      <p className="mt-4 text-xs text-white/60">
+        Demo: usa usuarios de tu <code>db.json</code> — p. ej. <code>sebastian / 1234</code>
+      </p>
+    </div>
+  );
+}
+
+// ---------------- Check / Task UI ----------------
 function CheckButton({ checked, onClick, title }) {
   return (
     <button
@@ -218,14 +277,12 @@ function CheckButton({ checked, onClick, title }) {
       title={title}
       aria-pressed={checked}
       className={
-        // tamaño fijo y sin shrink
         "mt-1 grid h-7 w-7 flex-none place-items-center rounded-lg border transition " +
         (checked
           ? "border-emerald-400 bg-emerald-400/20 shadow-[0_0_20px_rgba(16,185,129,.35)]"
           : "border-white/30 bg-transparent hover:border-cyan-400")
       }
     >
-      {/* Icono check solo si está marcado */}
       {checked && (
         <svg viewBox="0 0 24 24" className="h-4 w-4 text-emerald-300" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 6L9 17l-5-5" />
@@ -324,8 +381,6 @@ export default function ToDoListColaborativo() {
     document.title = "Prado's Tareas";
     return () => { document.title = prev; };
   }, []);
-
-  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   async function refresh() {
     if (!user) return;
@@ -445,7 +500,7 @@ export default function ToDoListColaborativo() {
           <Button variant="outline" className="rounded-full" onClick={logout}>Cerrar sesión</Button>
         </header>
 
-        {/* Top bar */}
+        {/* Top bar con contadores + búsqueda */}
         <section className="mb-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-2">
@@ -512,7 +567,11 @@ export default function ToDoListColaborativo() {
 
       {/* MODAL: Crear/Editar */}
       <Modal open={modal.open} onClose={() => setModal({ open: false, task: null })}>
-        <TaskForm initial={modal.task} onCancel={() => setModal({ open: false, task: null })} onSubmit={modal.task ? handleEdit : handleCreate} />
+        <TaskForm
+          initial={modal.task}
+          onCancel={() => setModal({ open: false, task: null })}
+          onSubmit={modal.task ? handleEdit : handleCreate}
+        />
       </Modal>
 
       {/* MODAL: Confirmar borrar */}
